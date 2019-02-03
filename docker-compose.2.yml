@@ -5,7 +5,7 @@ services:
         image: mongo:3.4
         ports:
             - "30022:27017"
-        command: mongod --replSet rs2 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles
+        command: mongod --replSet rs2 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5
         restart: always
 
     mongo-2-arb:
@@ -21,7 +21,7 @@ services:
         image: mongo:3.4
         ports:
             - "30021:27017"
-        command: mongod --replSet rs2 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles
+        command: mongod --replSet rs2 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 2
         links:
             - mongo-2-2:mongo-2-2
             - mongo-2-arb:mongo-2-arb
