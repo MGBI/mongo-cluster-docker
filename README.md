@@ -1,5 +1,13 @@
 # mongo-cluster-docker
 
+Forked from:
+https://github.com/senssei/mongo-cluster-docker
+
+The project is adapted to run 8 primary instances on a single Rancher host (32 GB RAM),
+and 8 secondary instance + 8 arbiters on another host (8GB RAM).
+
+Originally:
+
 This is a simple 3 node replica mongodb setup based on official `mongo` docker image using `docker-compose` described in my blogpost at https://warzycha.pl/mongo-db-sharding-docker-example/.
 
 For details description, steps and discussion go to:
@@ -11,6 +19,10 @@ For details description, steps and discussion go to:
 
 ```
 docker-compose -f docker-compose.1.yml -f docker-compose.2.yml  -f docker-compose.cnf.yml -f docker-compose.shard.yml up
+```
+or
+```
+./up.sh
 ```
 
 # Tests
