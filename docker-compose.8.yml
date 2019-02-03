@@ -1,0 +1,55 @@
+version: '2'
+services:
+    mongo-8-2:
+        container_name: "mongo-8-2"
+        image: mongo:3.4
+        ports:
+            - "30082:27017"
+        command: mongod --replSet rs8 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5
+        restart: on-failure
+        labels:
+            io.rancher.scheduler.affinity:host_label: members=secondary
+
+    mongo-8-arb:
+        container_name: "mongo-8-arb"
+        image: mongo:3.4
+        ports:
+            - "30083:27017"
+        command: mongod --replSet rs8 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles
+        restart: on-failure
+        labels:
+            io.rancher.scheduler.affinity:host_label: members=secondary
+
+    mongo-8-1:
+        container_name: "mongo-8-1"
+        image: mongo:3.4
+        ports:
+            - "30081:27017"
+        command: mongod --replSet rs8 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 2
+        links:
+            - mongo-8-2:mongo-8-2
+            - mongo-8-arb:mongo-8-arb
+        restart: on-failure
+        labels:
+            io.rancher.scheduler.affinity:host_label: members=primary
+
+    mongo-rs8-setup:
+        container_name: "mongo-rs8-setup"
+        image: mgbi/mongo-setup:3.4
+        depends_on:
+            - "mongo-8-1"
+            - "mongo-8-2"
+            - "mongo-8-arb"
+        links:
+            - mongo-8-1:mongo-8-1
+            - mongo-8-2:mongo-8-2
+            - mongo-8-arb:mongo-8-arb
+        environment: 
+            - MONGO1=mongo-8-1
+            - MONGO2=mongo-8-2
+            - MONGOARB=mongo-8-arb
+            - RS=rs8
+        entrypoint: [ "/scripts/setup.sh" ]
+        labels:
+            io.rancher.container.start_once: "true"
+            io.rancher.scheduler.affinity:host_label: members=primary

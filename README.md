@@ -22,7 +22,7 @@ docker-compose -f docker-compose.1.yml -f docker-compose.2.yml  -f docker-compos
 ```
 or
 ```
-./up.sh
+./compose.sh up
 ```
 
 # Tests

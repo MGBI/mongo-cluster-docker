@@ -14,6 +14,26 @@ mongodb31=`getent hosts ${MONGO31} | awk '{ print $1 }'`
 mongodb32=`getent hosts ${MONGO32} | awk '{ print $1 }'`
 mongodb3arb=`getent hosts ${MONGO3ARB} | awk '{ print $1 }'`
 
+mongodb41=`getent hosts ${MONGO41} | awk '{ print $1 }'`
+mongodb42=`getent hosts ${MONGO42} | awk '{ print $1 }'`
+mongodb4arb=`getent hosts ${MONGO4ARB} | awk '{ print $1 }'`
+
+mongodb51=`getent hosts ${MONGO51} | awk '{ print $1 }'`
+mongodb52=`getent hosts ${MONGO52} | awk '{ print $1 }'`
+mongodb5arb=`getent hosts ${MONGO5ARB} | awk '{ print $1 }'`
+
+mongodb61=`getent hosts ${MONGO61} | awk '{ print $1 }'`
+mongodb62=`getent hosts ${MONGO62} | awk '{ print $1 }'`
+mongodb6arb=`getent hosts ${MONGO6ARB} | awk '{ print $1 }'`
+
+mongodb71=`getent hosts ${MONGO71} | awk '{ print $1 }'`
+mongodb72=`getent hosts ${MONGO72} | awk '{ print $1 }'`
+mongodb7arb=`getent hosts ${MONGO7ARB} | awk '{ print $1 }'`
+
+mongodb81=`getent hosts ${MONGO81} | awk '{ print $1 }'`
+mongodb82=`getent hosts ${MONGO82} | awk '{ print $1 }'`
+mongodb8arb=`getent hosts ${MONGO8ARB} | awk '{ print $1 }'`
+
 port=${PORT:-27017}
 
 echo "Waiting for startup.."
@@ -26,8 +46,14 @@ echo "Started.."
 
 echo init-shard.sh time now: `date +"%T" `
 mongo --host ${mongodb1}:${port} <<EOF
-   sh.addShard( "${RS1}/${mongodb11}:${PORT1},${mongodb12}:${PORT2},${mongodb1arb}:${PORT3}" );
-   sh.addShard( "${RS2}/${mongodb21}:${PORT1},${mongodb22}:${PORT2},${mongodb2arb}:${PORT3}" );
+   sh.addShard( "${RS1}/${mongodb11}:${PORT1},${mongodb12}:${PORT2},${mongodb1arb}:${PORTARB}" );
+   sh.addShard( "${RS2}/${mongodb21}:${PORT1},${mongodb22}:${PORT2},${mongodb2arb}:${PORTARB}" );
+   sh.addShard( "${RS3}/${mongodb31}:${PORT1},${mongodb32}:${PORT2},${mongodb3arb}:${PORTARB}" );
+   sh.addShard( "${RS4}/${mongodb41}:${PORT1},${mongodb42}:${PORT2},${mongodb4arb}:${PORTARB}" );
+   sh.addShard( "${RS5}/${mongodb51}:${PORT1},${mongodb52}:${PORT2},${mongodb5arb}:${PORTARB}" );
+   sh.addShard( "${RS6}/${mongodb61}:${PORT1},${mongodb62}:${PORT2},${mongodb6arb}:${PORTARB}" );
+   sh.addShard( "${RS7}/${mongodb71}:${PORT1},${mongodb72}:${PORT2},${mongodb7arb}:${PORTARB}" );
+   sh.addShard( "${RS8}/${mongodb81}:${PORT1},${mongodb82}:${PORT2},${mongodb8arb}:${PORTARB}" );
    sh.stopBalancer();
    sh.status();
 EOF

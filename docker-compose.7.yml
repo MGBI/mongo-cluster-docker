@@ -1,0 +1,55 @@
+version: '2'
+services:
+    mongo-7-2:
+        container_name: "mongo-7-2"
+        image: mongo:3.4
+        ports:
+            - "30072:27017"
+        command: mongod --replSet rs7 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5
+        restart: on-failure
+        labels:
+            io.rancher.scheduler.affinity:host_label: members=secondary
+
+    mongo-7-arb:
+        container_name: "mongo-7-arb"
+        image: mongo:3.4
+        ports:
+            - "30073:27017"
+        command: mongod --replSet rs7 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles
+        restart: on-failure
+        labels:
+            io.rancher.scheduler.affinity:host_label: members=secondary
+
+    mongo-7-1:
+        container_name: "mongo-7-1"
+        image: mongo:3.4
+        ports:
+            - "30071:27017"
+        command: mongod --replSet rs7 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 2
+        links:
+            - mongo-7-2:mongo-7-2
+            - mongo-7-arb:mongo-7-arb
+        restart: on-failure
+        labels:
+            io.rancher.scheduler.affinity:host_label: members=primary
+
+    mongo-rs7-setup:
+        container_name: "mongo-rs7-setup"
+        image: mgbi/mongo-setup:3.4
+        depends_on:
+            - "mongo-7-1"
+            - "mongo-7-2"
+            - "mongo-7-arb"
+        links:
+            - mongo-7-1:mongo-7-1
+            - mongo-7-2:mongo-7-2
+            - mongo-7-arb:mongo-7-arb
+        environment: 
+            - MONGO1=mongo-7-1
+            - MONGO2=mongo-7-2
+            - MONGOARB=mongo-7-arb
+            - RS=rs7
+        entrypoint: [ "/scripts/setup.sh" ]
+        labels:
+            io.rancher.container.start_once: "true"
+            io.rancher.scheduler.affinity:host_label: members=primary
