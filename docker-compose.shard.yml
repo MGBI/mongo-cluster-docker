@@ -26,13 +26,11 @@ services:
 
     mongo-shard-setup:
         container_name: "mongo-shard-setup"
-        image: mongo:3.4
+        image: mgbi/mongo-setup:3.4
         depends_on:
             - "mongo-router"
         links:
             - mongo-router:mongo-router
-        volumes:
-            - ./scripts:/scripts
         environment: 
             - MONGOS=mongo-router
             - MONGO11=mongo-1-1

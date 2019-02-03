@@ -35,7 +35,7 @@ services:
 
     mongo-rs1-setup:
         container_name: "mongo-rs1-setup"
-        image: mongo:3.4
+        image: mgbi/mongo-setup:3.4
         depends_on:
             - "mongo-1-1"
             - "mongo-1-2"
@@ -44,8 +44,6 @@ services:
             - mongo-1-1:mongo-1-1
             - mongo-1-2:mongo-1-2
             - mongo-1-arb:mongo-1-arb
-        volumes:
-            - ./scripts:/scripts
         environment: 
             - MONGO1=mongo-1-1
             - MONGO2=mongo-1-2
