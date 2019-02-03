@@ -6,7 +6,9 @@ services:
         ports:
             - "30102:27017"
         command: mongod --replSet cnf-serv --configsvr --port 27017 --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.25
-        restart: always
+        restart: on-failure
+        labels:
+            io.rancher.scheduler.affinity:host_label: members=secondary
 
     mongo-cnf-3:
         container_name: "mongo-cnf-3"
@@ -14,7 +16,9 @@ services:
         ports:
             - "30103:27017"
         command: mongod --replSet cnf-serv --configsvr --port 27017 --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.25
-        restart: always 
+        restart: on-failure
+        labels:
+            io.rancher.scheduler.affinity:host_label: members=secondary
 
     mongo-cnf-1:
         container_name: "mongo-cnf-1"
@@ -25,7 +29,9 @@ services:
         links:
             - mongo-cnf-2:mongo-cnf-2
             - mongo-cnf-3:mongo-cnf-3
-        restart: always
+        restart: on-failure
+        labels:
+            io.rancher.scheduler.affinity:host_label: members=primary
 
     mongo-cnf-setup:
         container_name: "mongo-cnf-setup"
@@ -47,3 +53,6 @@ services:
             - RS=cnf-serv
             - PORT=27017
         entrypoint: [ "/scripts/setup-cnf.sh" ]
+        labels:
+            io.rancher.container.start_once: "true"
+            io.rancher.scheduler.affinity:host_label: members=primary

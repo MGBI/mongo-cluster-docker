@@ -6,7 +6,9 @@ services:
         ports:
             - "30022:27017"
         command: mongod --replSet rs2 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5
-        restart: always
+        restart: on-failure
+        labels:
+            io.rancher.scheduler.affinity:host_label: members=secondary
 
     mongo-2-arb:
         container_name: "mongo-2-arb"
@@ -14,7 +16,9 @@ services:
         ports:
             - "30023:27017"
         command: mongod --replSet rs2 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles
-        restart: always 
+        restart: on-failure
+        labels:
+            io.rancher.scheduler.affinity:host_label: members=secondary
 
     mongo-2-1:
         container_name: "mongo-2-1"
@@ -25,7 +29,9 @@ services:
         links:
             - mongo-2-2:mongo-2-2
             - mongo-2-arb:mongo-2-arb
-        restart: always
+        restart: on-failure
+        labels:
+            io.rancher.scheduler.affinity:host_label: members=primary
 
     mongo-rs2-setup:
         container_name: "mongo-rs2-setup"
@@ -46,5 +52,6 @@ services:
             - MONGOARB=mongo-2-arb
             - RS=rs2
         entrypoint: [ "/scripts/setup.sh" ]
-
-        
+        labels:
+            io.rancher.container.start_once: "true"
+            io.rancher.scheduler.affinity:host_label: members=primary
