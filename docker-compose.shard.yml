@@ -15,10 +15,10 @@ services:
             - mongo-cnf-3:mongo-cnf-3
             - mongo-1-1:mongo-1-1
             - mongo-1-2:mongo-1-2
-            - mongo-1-3:mongo-1-3
+            - mongo-1-arb:mongo-1-arb
             - mongo-2-1:mongo-2-1
             - mongo-2-2:mongo-2-2
-            - mongo-2-3:mongo-2-3
+            - mongo-2-arb:mongo-2-arb
         command: mongos --configdb cnf-serv/mongo-cnf-1:27017,mongo-cnf-2:27017,mongo-cnf-3:27017 --port 27017 --bind_ip 0.0.0.0
         restart: always
 
@@ -35,10 +35,10 @@ services:
             - MONGOS=mongo-router
             - MONGO11=mongo-1-1
             - MONGO12=mongo-1-2
-            - MONGO13=mongo-1-3
+            - MONGO1ARB=mongo-1-arb
             - MONGO21=mongo-2-1
             - MONGO22=mongo-2-2
-            - MONGO23=mongo-2-3
+            - MONGO2ARB=mongo-2-arb
             - RS1=rs1
             - RS2=rs2
             - PORT=27017
