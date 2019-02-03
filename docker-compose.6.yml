@@ -3,8 +3,8 @@ services:
     mongo-6-2:
         container_name: "mongo-6-2"
         image: mongo:3.4
-        ports:
-            - "30062:27017"
+        expose:
+            - "27017"
         command: mongod --replSet rs6 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5
         restart: on-failure
         labels:
@@ -13,8 +13,8 @@ services:
     mongo-6-arb:
         container_name: "mongo-6-arb"
         image: mongo:3.4
-        ports:
-            - "30063:27017"
+        expose:
+            - "27017"
         command: mongod --replSet rs6 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles
         restart: on-failure
         labels:
@@ -23,8 +23,8 @@ services:
     mongo-6-1:
         container_name: "mongo-6-1"
         image: mongo:3.4
-        ports:
-            - "30061:27017"
+        expose:
+            - "27017"
         command: mongod --replSet rs6 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 2
         links:
             - mongo-6-2:mongo-6-2

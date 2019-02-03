@@ -3,8 +3,8 @@ services:
     mongo-5-2:
         container_name: "mongo-5-2"
         image: mongo:3.4
-        ports:
-            - "30052:27017"
+        expose:
+            - "27017"
         command: mongod --replSet rs5 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5
         restart: on-failure
         labels:
@@ -13,8 +13,8 @@ services:
     mongo-5-arb:
         container_name: "mongo-5-arb"
         image: mongo:3.4
-        ports:
-            - "30053:27017"
+        expose:
+            - "27017"
         command: mongod --replSet rs5 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles
         restart: on-failure
         labels:
@@ -23,8 +23,8 @@ services:
     mongo-5-1:
         container_name: "mongo-5-1"
         image: mongo:3.4
-        ports:
-            - "30051:27017"
+        expose:
+            - "27017"
         command: mongod --replSet rs5 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 2
         links:
             - mongo-5-2:mongo-5-2
