@@ -2,30 +2,69 @@ version: '2'
 services:
     mongo-2-2:
         container_name: "mongo-2-2"
-        image: mongo:3.4
+        image: mongo:${MONGO_VERSION}
         expose:
             - "27017"
-        command: mongod --replSet rs2 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5
+        command: >
+            sh -ce "
+                if [ ! -f /data/configdb/replica.key ]; then
+                    apt-get update
+                    apt-get install -y --no-install-recommends wget
+                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
+                    chown mongodb:mongodb /data/configdb/replica.key
+                    chmod 400 /data/configdb/replica.key
+                    apt-get purge -y --auto-remove wget
+                    rm -rf /var/lib/apt/lists/*
+                fi
+                mongod --keyFile /data/configdb/replica.key \
+                    --replSet rs2 --shardsvr --port 27017 --oplogSize 16 \
+                    --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5"
         restart: on-failure
         labels:
             io.rancher.scheduler.affinity:host_label: members=secondary
 
     mongo-2-arb:
         container_name: "mongo-2-arb"
-        image: mongo:3.4
+        image: mongo:${MONGO_VERSION}
         expose:
             - "27017"
-        command: mongod --replSet rs2 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles
+        command: >
+            sh -ce "
+                if [ ! -f /data/configdb/replica.key ]; then
+                    apt-get update
+                    apt-get install -y --no-install-recommends wget
+                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
+                    chown mongodb:mongodb /data/configdb/replica.key
+                    chmod 400 /data/configdb/replica.key
+                    apt-get purge -y --auto-remove wget
+                    rm -rf /var/lib/apt/lists/*
+                fi
+                mongod --keyFile /data/configdb/replica.key \
+                    --replSet rs2 --shardsvr --port 27017 --oplogSize 16 \
+                    --noprealloc --smallfiles"
         restart: on-failure
         labels:
             io.rancher.scheduler.affinity:host_label: members=secondary
 
     mongo-2-1:
         container_name: "mongo-2-1"
-        image: mongo:3.4
+        image: mongo:${MONGO_VERSION}
         expose:
             - "27017"
-        command: mongod --replSet rs2 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 2
+        command: >
+            sh -ce "
+                if [ ! -f /data/configdb/replica.key ]; then
+                    apt-get update
+                    apt-get install -y --no-install-recommends wget
+                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
+                    chown mongodb:mongodb /data/configdb/replica.key
+                    chmod 400 /data/configdb/replica.key
+                    apt-get purge -y --auto-remove wget
+                    rm -rf /var/lib/apt/lists/*
+                fi
+                mongod --keyFile /data/configdb/replica.key \
+                    --replSet rs2 --shardsvr --port 27017 --oplogSize 16 \
+                    --noprealloc --smallfiles --wiredTigerCacheSizeGB 2"
         links:
             - mongo-2-2:mongo-2-2
             - mongo-2-arb:mongo-2-arb

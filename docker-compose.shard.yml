@@ -2,7 +2,7 @@ version: '2'
 services:
     mongo-router:
         container_name: "mongo-router"
-        image: mongo:3.4
+        image: mongo:${MONGO_VERSION}
         ports:
             - "30001:27017"
         depends_on:
@@ -46,7 +46,20 @@ services:
             - mongo-8-2:mongo-8-2
             - mongo-8-arb:mongo-8-arb
 
-        command: mongos --configdb cnf-serv/mongo-cnf-1:27017,mongo-cnf-2:27017,mongo-cnf-3:27017 --port 27017 --bind_ip 0.0.0.0
+        command: >
+            sh -ce "
+                if [ ! -f /data/configdb/replica.key ]; then
+                    apt-get update
+                    apt-get install -y --no-install-recommends wget
+                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
+                    chown mongodb:mongodb /data/configdb/replica.key
+                    chmod 400 /data/configdb/replica.key
+                    apt-get purge -y --auto-remove wget
+                    rm -rf /var/lib/apt/lists/*
+                fi
+                mongos --keyFile /data/configdb/replica.key \
+                    --configdb cnf-serv/mongo-cnf-1:27017,mongo-cnf-2:27017,mongo-cnf-3:27017 \
+                    --port 27017 --bind_ip 0.0.0.0"
         restart: on-failure
         labels:
             io.rancher.scheduler.affinity:host_label: members=primary

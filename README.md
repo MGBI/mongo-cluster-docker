@@ -6,6 +6,8 @@ https://github.com/senssei/mongo-cluster-docker
 The project is adapted to run 8 primary instances on a single Rancher host (32 GB RAM),
 and 8 secondary instance + 8 arbiters on another host (8GB RAM).
 
+Access control is enabled. Configure .env file
+
 Originally:
 
 This is a simple 3 node replica mongodb setup based on official `mongo` docker image using `docker-compose` described in my blogpost at https://warzycha.pl/mongo-db-sharding-docker-example/.
@@ -97,6 +99,10 @@ Basically `mongosetup` service is now splitted to multiple `yml` files. :)
 * https://docs.docker.com/compose/startup-order/
 * http://stackoverflow.com/questions/31138631/configuring-mongodb-replica-set-from-docker-compose
 * https://github.com/soldotno/elastic-mongo/blob/master/docker-compose.yml
+
+Access control:
+
+* https://docs.mongodb.com/v3.4/tutorial/deploy-sharded-cluster-with-keyfile-access-control/
 
 See more @ `ENV.md`
 
