@@ -1,0 +1,8 @@
+FROM mongo:3.4
+
+# wget for get-replica-set-key command
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends wget && \
+	rm -rf /var/lib/apt/lists/*
+
+COPY scripts/* /usr/local/bin/

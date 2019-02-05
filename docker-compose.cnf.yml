@@ -2,22 +2,14 @@ version: '2'
 services:
     mongo-cnf-2:
         container_name: "mongo-cnf-2"
-        image: mongo:${MONGO_VERSION}
+        image: mgbi/mongo-rs:${MONGO_VERSION}
         expose:
             - "27017"
         command: >
             sh -ce "
-                if [ ! -f /data/configdb/replica.key ]; then
-                    apt-get update
-                    apt-get install -y --no-install-recommends wget
-                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
-                    chown mongodb:mongodb /data/configdb/replica.key
-                    chmod 400 /data/configdb/replica.key
-                    apt-get purge -y --auto-remove wget
-                    rm -rf /var/lib/apt/lists/*
-                fi
-                mongod --keyFile /data/configdb/replica.key \
-                    --replSet cnf-serv --configsvr --port 27017 --oplogSize 16 \
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
+                mongod --keyFile ${KEYFILE_PATH} \
+                    --replSet rs-cnf --configsvr --port 27017 --oplogSize 16 \
                     --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.25"
         restart: on-failure
         labels:
@@ -25,22 +17,14 @@ services:
 
     mongo-cnf-3:
         container_name: "mongo-cnf-3"
-        image: mongo:${MONGO_VERSION}
+        image: mgbi/mongo-rs:${MONGO_VERSION}
         expose:
             - "27017"
         command: >
             sh -ce "
-                if [ ! -f /data/configdb/replica.key ]; then
-                    apt-get update
-                    apt-get install -y --no-install-recommends wget
-                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
-                    chown mongodb:mongodb /data/configdb/replica.key
-                    chmod 400 /data/configdb/replica.key
-                    apt-get purge -y --auto-remove wget
-                    rm -rf /var/lib/apt/lists/*
-                fi
-                mongod --keyFile /data/configdb/replica.key \
-                    --replSet cnf-serv --configsvr --port 27017 --oplogSize 16 \
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
+                mongod --keyFile ${KEYFILE_PATH} \
+                    --replSet rs-cnf --configsvr --port 27017 --oplogSize 16 \
                     --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.25"
         restart: on-failure
         labels:
@@ -48,47 +32,23 @@ services:
 
     mongo-cnf-1:
         container_name: "mongo-cnf-1"
-        image: mongo:${MONGO_VERSION}
+        image: mgbi/mongo-rs:${MONGO_VERSION}
         expose:
             - "27017"
         command: >
             sh -ce "
-                if [ ! -f /data/configdb/replica.key ]; then
-                    apt-get update
-                    apt-get install -y --no-install-recommends wget
-                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
-                    chown mongodb:mongodb /data/configdb/replica.key
-                    chmod 400 /data/configdb/replica.key
-                    apt-get purge -y --auto-remove wget
-                    rm -rf /var/lib/apt/lists/*
-                fi
-                mongod --keyFile /data/configdb/replica.key \
-                    --replSet cnf-serv --configsvr --port 27017 --oplogSize 16 \
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
+                mongod --keyFile ${KEYFILE_PATH} \
+                    --replSet rs-cnf --configsvr --port 27017 --oplogSize 16 \
                     --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.25"
         links:
             - mongo-cnf-2:mongo-cnf-2
             - mongo-cnf-3:mongo-cnf-3
-        restart: on-failure
-        labels:
-            io.rancher.scheduler.affinity:host_label: members=primary
-
-    mongo-cnf-setup:
-        container_name: "mongo-cnf-setup"
-        image: mgbi/mongo-setup:3.4
-        depends_on:
-            - "mongo-cnf-1"
-            - "mongo-cnf-2"
-            - "mongo-cnf-3"
-        links:
-            - mongo-cnf-1:mongo-cnf-1
-            - mongo-cnf-2:mongo-cnf-2
-            - mongo-cnf-3:mongo-cnf-3
-        environment: 
+        environment:
             - MONGO1=mongo-cnf-1
             - MONGO2=mongo-cnf-2
             - MONGO3=mongo-cnf-3
-            - RS=cnf-serv
-        entrypoint: [ "/scripts/setup-cnf.sh" ]
+            - RS=rs-cnf
+        restart: on-failure
         labels:
-            io.rancher.container.start_once: "true"
             io.rancher.scheduler.affinity:host_label: members=primary

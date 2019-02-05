@@ -1,0 +1,30 @@
+#!/bin/sh
+
+port=${PORT:-27017}
+
+echo "Waiting for local mongo startup.."
+until mongo --port ${port} --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)' &>/dev/null; do
+	printf '.'
+	sleep 1
+done
+
+echo "Started.."
+
+
+# Connect to the primary using the localhost interface
+echo init-users time now: `date +"%T" `
+mongo --port $port admin <<-EOJS
+	db.createUser({
+		user: $USER_ADMIN_NAME,
+		pwd: $USER_ADMIN_PASSWORD,
+		roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+	})
+EOJS
+
+mongo --port $port --username $USER_ADMIN_NAME --password $USER_ADMIN_PASSWORD admin <<-EOJS
+	db.createUser({
+		user: $CLUSTER_ADMIN_NAME,
+		pwd: $CLUSTER_ADMIN_PASSWORD,
+		roles: [ { role: "clusterAdmin", db: "admin" } ]
+	})
+EOJS

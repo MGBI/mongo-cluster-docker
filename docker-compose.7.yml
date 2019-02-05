@@ -2,23 +2,14 @@ version: '2'
 services:
     mongo-7-2:
         container_name: "mongo-7-2"
-        image: mongo:${MONGO_VERSION}
+        image: mgbi/mongo-rs:${MONGO_VERSION}
         expose:
             - "27017"
-        command: mongod --replSet rs7 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5
         command: >
             sh -ce "
-                if [ ! -f /data/configdb/replica.key ]; then
-                    apt-get update
-                    apt-get install -y --no-install-recommends wget
-                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
-                    chown mongodb:mongodb /data/configdb/replica.key
-                    chmod 400 /data/configdb/replica.key
-                    apt-get purge -y --auto-remove wget
-                    rm -rf /var/lib/apt/lists/*
-                fi
-                mongod --keyFile /data/configdb/replica.key \
-                    --replSet rs1 --shardsvr --port 27017 --oplogSize 16 \
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
+                mongod --keyFile ${KEYFILE_PATH} \
+                    --replSet rs7 --shardsvr --port 27017 --oplogSize 16 \
                     --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5"
         restart: on-failure
         labels:
@@ -26,23 +17,14 @@ services:
 
     mongo-7-arb:
         container_name: "mongo-7-arb"
-        image: mongo:${MONGO_VERSION}
+        image: mgbi/mongo-rs:${MONGO_VERSION}
         expose:
             - "27017"
-        command: mongod --replSet rs7 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles
         command: >
             sh -ce "
-                if [ ! -f /data/configdb/replica.key ]; then
-                    apt-get update
-                    apt-get install -y --no-install-recommends wget
-                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
-                    chown mongodb:mongodb /data/configdb/replica.key
-                    chmod 400 /data/configdb/replica.key
-                    apt-get purge -y --auto-remove wget
-                    rm -rf /var/lib/apt/lists/*
-                fi
-                mongod --keyFile /data/configdb/replica.key \
-                    --replSet rs1 --shardsvr --port 27017 --oplogSize 16 \
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
+                mongod --keyFile ${KEYFILE_PATH} \
+                    --replSet rs7 --shardsvr --port 27017 --oplogSize 16 \
                     --noprealloc --smallfiles"
         restart: on-failure
         labels:
@@ -50,40 +32,16 @@ services:
 
     mongo-7-1:
         container_name: "mongo-7-1"
-        image: mongo:${MONGO_VERSION}
+        image: mgbi/mongo-rs:${MONGO_VERSION}
         expose:
             - "27017"
-        command: mongod --replSet rs7 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 2
         command: >
             sh -ce "
-                if [ ! -f /data/configdb/replica.key ]; then
-                    apt-get update
-                    apt-get install -y --no-install-recommends wget
-                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
-                    chown mongodb:mongodb /data/configdb/replica.key
-                    chmod 400 /data/configdb/replica.key
-                    apt-get purge -y --auto-remove wget
-                    rm -rf /var/lib/apt/lists/*
-                fi
-                mongod --keyFile /data/configdb/replica.key \
-                    --replSet rs1 --shardsvr --port 27017 --oplogSize 16 \
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
+                mongod --keyFile ${KEYFILE_PATH} \
+                    --replSet rs7 --shardsvr --port 27017 --oplogSize 16 \
                     --noprealloc --smallfiles --wiredTigerCacheSizeGB 2"
         links:
-            - mongo-7-2:mongo-7-2
-            - mongo-7-arb:mongo-7-arb
-        restart: on-failure
-        labels:
-            io.rancher.scheduler.affinity:host_label: members=primary
-
-    mongo-rs7-setup:
-        container_name: "mongo-rs7-setup"
-        image: mgbi/mongo-setup:3.4
-        depends_on:
-            - "mongo-7-1"
-            - "mongo-7-2"
-            - "mongo-7-arb"
-        links:
-            - mongo-7-1:mongo-7-1
             - mongo-7-2:mongo-7-2
             - mongo-7-arb:mongo-7-arb
         environment: 
@@ -91,7 +49,6 @@ services:
             - MONGO2=mongo-7-2
             - MONGOARB=mongo-7-arb
             - RS=rs7
-        entrypoint: [ "/scripts/setup.sh" ]
+        restart: on-failure
         labels:
-            io.rancher.container.start_once: "true"
             io.rancher.scheduler.affinity:host_label: members=primary

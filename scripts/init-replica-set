@@ -6,16 +6,20 @@ mongodbarb=`getent hosts ${MONGOARB} | awk '{ print $1 }'`
 
 port=${PORT:-27017}
 
-echo "Waiting for startup.."
-until mongo --host ${mongodb1}:${port} --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)' &>/dev/null; do
-  printf '.'
-  sleep 1
+for mongodb in $mongodb1 $mongodb2 $mongodbarb; do
+	echo "Waiting for ${mongodb} startup.."
+  	until mongo --host ${mongodb}:${port} --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)' &>/dev/null; do
+		printf '.'
+		sleep 1
+	done
 done
 
 echo "Started.."
 
-echo setup.sh time now: `date +"%T" `
-mongo --host ${mongodb1}:${port} <<EOF
+
+# Connect to the primary using the localhost interface
+echo init-replica-set time now: `date +"%T" `
+mongo --port ${port} <<-EOJS
    var cfg = {
         "_id": "${RS}",
         "protocolVersion": 1,
@@ -38,5 +42,4 @@ mongo --host ${mongodb1}:${port} <<EOF
         ]
     };
     rs.initiate(cfg, { force: true });
-    rs.reconfig(cfg, { force: true });
-EOF
+EOJS

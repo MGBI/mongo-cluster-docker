@@ -1,0 +1,9 @@
+#!/bin/sh -e
+REPLICA_KEY_URL=$1
+KEYFILE_PATH=${2:-/data/configdb/replica.key}
+
+if [ ! -f $KEYFILE_PATH ]; then
+	wget -O $KEYFILE_PATH $REPLICA_KEY_URL
+	chown mongodb:mongodb $KEYFILE_PATH
+	chmod 400 $KEYFILE_PATH
+fi

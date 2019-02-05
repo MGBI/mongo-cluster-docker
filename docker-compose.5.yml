@@ -2,22 +2,13 @@ version: '2'
 services:
     mongo-5-2:
         container_name: "mongo-5-2"
-        image: mongo:${MONGO_VERSION}
+        image: mgbi/mongo-rs:${MONGO_VERSION}
         expose:
             - "27017"
-        command: mongod --replSet rs5 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5
         command: >
             sh -ce "
-                if [ ! -f /data/configdb/replica.key ]; then
-                    apt-get update
-                    apt-get install -y --no-install-recommends wget
-                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
-                    chown mongodb:mongodb /data/configdb/replica.key
-                    chmod 400 /data/configdb/replica.key
-                    apt-get purge -y --auto-remove wget
-                    rm -rf /var/lib/apt/lists/*
-                fi
-                mongod --keyFile /data/configdb/replica.key \
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
+                mongod --keyFile ${KEYFILE_PATH} \
                     --replSet rs5 --shardsvr --port 27017 --oplogSize 16 \
                     --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5"
         restart: on-failure
@@ -26,22 +17,13 @@ services:
 
     mongo-5-arb:
         container_name: "mongo-5-arb"
-        image: mongo:${MONGO_VERSION}
+        image: mgbi/mongo-rs:${MONGO_VERSION}
         expose:
             - "27017"
-        command: mongod --replSet rs5 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles
         command: >
             sh -ce "
-                if [ ! -f /data/configdb/replica.key ]; then
-                    apt-get update
-                    apt-get install -y --no-install-recommends wget
-                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
-                    chown mongodb:mongodb /data/configdb/replica.key
-                    chmod 400 /data/configdb/replica.key
-                    apt-get purge -y --auto-remove wget
-                    rm -rf /var/lib/apt/lists/*
-                fi
-                mongod --keyFile /data/configdb/replica.key \
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
+                mongod --keyFile ${KEYFILE_PATH} \
                     --replSet rs5 --shardsvr --port 27017 --oplogSize 16 \
                     --noprealloc --smallfiles"
         restart: on-failure
@@ -50,40 +32,16 @@ services:
 
     mongo-5-1:
         container_name: "mongo-5-1"
-        image: mongo:${MONGO_VERSION}
+        image: mgbi/mongo-rs:${MONGO_VERSION}
         expose:
             - "27017"
-        command: mongod --replSet rs5 --shardsvr --port 27017  --oplogSize 16 --noprealloc --smallfiles --wiredTigerCacheSizeGB 2
         command: >
             sh -ce "
-                if [ ! -f /data/configdb/replica.key ]; then
-                    apt-get update
-                    apt-get install -y --no-install-recommends wget
-                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
-                    chown mongodb:mongodb /data/configdb/replica.key
-                    chmod 400 /data/configdb/replica.key
-                    apt-get purge -y --auto-remove wget
-                    rm -rf /var/lib/apt/lists/*
-                fi
-                mongod --keyFile /data/configdb/replica.key \
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
+                mongod --keyFile ${KEYFILE_PATH} \
                     --replSet rs5 --shardsvr --port 27017 --oplogSize 16 \
                     --noprealloc --smallfiles --wiredTigerCacheSizeGB 2"
         links:
-            - mongo-5-2:mongo-5-2
-            - mongo-5-arb:mongo-5-arb
-        restart: on-failure
-        labels:
-            io.rancher.scheduler.affinity:host_label: members=primary
-
-    mongo-rs5-setup:
-        container_name: "mongo-rs5-setup"
-        image: mgbi/mongo-setup:3.4
-        depends_on:
-            - "mongo-5-1"
-            - "mongo-5-2"
-            - "mongo-5-arb"
-        links:
-            - mongo-5-1:mongo-5-1
             - mongo-5-2:mongo-5-2
             - mongo-5-arb:mongo-5-arb
         environment: 
@@ -91,7 +49,6 @@ services:
             - MONGO2=mongo-5-2
             - MONGOARB=mongo-5-arb
             - RS=rs5
-        entrypoint: [ "/scripts/setup.sh" ]
+        restart: on-failure
         labels:
-            io.rancher.container.start_once: "true"
             io.rancher.scheduler.affinity:host_label: members=primary

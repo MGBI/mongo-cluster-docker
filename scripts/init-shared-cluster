@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/sh 
 
 mongodb1=`getent hosts ${MONGOS} | awk '{ print $1 }'`
 
@@ -36,16 +36,20 @@ mongodb8arb=`getent hosts ${MONGO8ARB} | awk '{ print $1 }'`
 
 port=${PORT:-27017}
 
-echo "Waiting for startup.."
-until mongo --host ${mongodb1}:${port} --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)' &>/dev/null; do
-  printf '.'
-  sleep 1
+for mongodb in $mongodb1 $mongodb11 $mongodb21 $mongodb31 $mongodb41 \
+				$mongodb51 	$mongodb61 $mongodb71 $mongodb81; do
+	echo "Waiting for ${mongodb} startup.."
+  	until mongo --host ${mongodb}:${port} --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)' &>/dev/null; do
+		printf '.'
+		sleep 1
+	done
 done
 
 echo "Started.."
 
-echo init-shard.sh time now: `date +"%T" `
-mongo --host ${mongodb1}:${port} <<EOF
+
+echo init-sharded-cluster time now: `date +"%T" `
+mongo --port $port --username $CLUSTER_ADMIN_NAME --password $CLUSTER_ADMIN_PASSWORD <<EOF
    sh.addShard( "${RS1}/${mongodb11}:${PORT1},${mongodb12}:${PORT2},${mongodb1arb}:${PORTARB}" );
    sh.addShard( "${RS2}/${mongodb21}:${PORT1},${mongodb22}:${PORT2},${mongodb2arb}:${PORTARB}" );
    sh.addShard( "${RS3}/${mongodb31}:${PORT1},${mongodb32}:${PORT2},${mongodb3arb}:${PORTARB}" );

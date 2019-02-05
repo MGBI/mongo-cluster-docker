@@ -2,13 +2,9 @@ version: '2'
 services:
     mongo-router:
         container_name: "mongo-router"
-        image: mongo:${MONGO_VERSION}
+        image: mgbi/mongo-rs:${MONGO_VERSION}
         ports:
             - "30001:27017"
-        depends_on:
-            - "mongo-rs1-setup"
-            - "mongo-rs2-setup"
-            - "mongo-cnf-setup"
         external_links:
             - mongo-cnf-1:mongo-cnf-1
             - mongo-cnf-2:mongo-cnf-2
@@ -46,31 +42,6 @@ services:
             - mongo-8-2:mongo-8-2
             - mongo-8-arb:mongo-8-arb
 
-        command: >
-            sh -ce "
-                if [ ! -f /data/configdb/replica.key ]; then
-                    apt-get update
-                    apt-get install -y --no-install-recommends wget
-                    wget -O /data/configdb/replica.key ${REPLICA_KEY_URL}
-                    chown mongodb:mongodb /data/configdb/replica.key
-                    chmod 400 /data/configdb/replica.key
-                    apt-get purge -y --auto-remove wget
-                    rm -rf /var/lib/apt/lists/*
-                fi
-                mongos --keyFile /data/configdb/replica.key \
-                    --configdb cnf-serv/mongo-cnf-1:27017,mongo-cnf-2:27017,mongo-cnf-3:27017 \
-                    --port 27017 --bind_ip 0.0.0.0"
-        restart: on-failure
-        labels:
-            io.rancher.scheduler.affinity:host_label: members=primary
-
-    mongo-shard-setup:
-        container_name: "mongo-shard-setup"
-        image: mgbi/mongo-setup:3.4
-        depends_on:
-            - "mongo-router"
-        links:
-            - mongo-router:mongo-router
         environment: 
             - MONGOS=mongo-router
             - PORT=27017
@@ -117,9 +88,18 @@ services:
             - MONGO81=mongo-8-1
             - MONGO82=mongo-8-2
             - MONGO8ARB=mongo-8-arb
-            
-        entrypoint: [ "/scripts/init-shard.sh" ]
-        restart: on-failure:20
+
+            - USER_ADMIN_NAME=${USER_ADMIN_NAME}
+            - USER_ADMIN_PASSWORD=${USER_ADMIN_PASSWORD}
+            - CLUSTER_ADMIN_NAME=${CLUSTER_ADMIN_NAME}
+            - CLUSTER_ADMIN_PASSWORD=${CLUSTER_ADMIN_PASSWORD}
+
+        command: >
+            sh -ce "
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
+                mongos --keyFile ${KEYFILE_PATH} \
+                    --configdb cnf-serv/mongo-cnf-1:27017,mongo-cnf-2:27017,mongo-cnf-3:27017 \
+                    --port 27017 --bind_ip 0.0.0.0"
+        restart: on-failure
         labels:
-            io.rancher.container.start_once: "true"
             io.rancher.scheduler.affinity:host_label: members=primary
