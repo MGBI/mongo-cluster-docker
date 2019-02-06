@@ -96,10 +96,8 @@ services:
 
         command: >
             sh -ce "
-                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
-                mongos --keyFile ${KEYFILE_PATH} \
-                    --configdb cnf-serv/mongo-cnf-1:27017,mongo-cnf-2:27017,mongo-cnf-3:27017 \
-                    --port 27017 --bind_ip 0.0.0.0"
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH};
+                mongos --keyFile ${KEYFILE_PATH} --configdb rs-cnf/mongo-cnf-1:27017,mongo-cnf-2:27017,mongo-cnf-3:27017 --port 27017 --bind_ip 0.0.0.0"
         restart: on-failure
         labels:
             io.rancher.scheduler.affinity:host_label: members=primary

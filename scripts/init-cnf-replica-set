@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/sh -e
 
 mongodb1=`getent hosts ${MONGO1} | awk '{ print $1 }'`
 mongodb2=`getent hosts ${MONGO2} | awk '{ print $1 }'`
@@ -19,7 +19,7 @@ echo "Started.."
 
 # Connect to the primary using the localhost interface
 echo init-cnf-replica-set time now: `date +"%T" `
-mongo --port ${port} <<EOF
+mongo --port ${port} <<-EOJS
    var cfg = {
         "_id": "${RS}",
         "configsvr": true,
@@ -28,19 +28,19 @@ mongo --port ${port} <<EOF
             {
                 "_id": 100,
                 "host": "${mongodb1}:${port}",
-				"priority": 2
+                "priority": 2
             },
             {
                 "_id": 101,
                 "host": "${mongodb2}:${port}",
-				"priority": 1
+                "priority": 1
             },
             {
                 "_id": 102,
                 "host": "${mongodb3}:${port}",
-				"priority": 1
+                "priority": 1
             }
         ]
     };
     rs.initiate(cfg, { force: true });
-EOF
+EOJS

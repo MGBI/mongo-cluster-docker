@@ -49,15 +49,16 @@ echo "Started.."
 
 
 echo init-sharded-cluster time now: `date +"%T" `
-mongo --port $port --username $CLUSTER_ADMIN_NAME --password $CLUSTER_ADMIN_PASSWORD <<EOF
-   sh.addShard( "${RS1}/${mongodb11}:${PORT1},${mongodb12}:${PORT2},${mongodb1arb}:${PORTARB}" );
-   sh.addShard( "${RS2}/${mongodb21}:${PORT1},${mongodb22}:${PORT2},${mongodb2arb}:${PORTARB}" );
-   sh.addShard( "${RS3}/${mongodb31}:${PORT1},${mongodb32}:${PORT2},${mongodb3arb}:${PORTARB}" );
-   sh.addShard( "${RS4}/${mongodb41}:${PORT1},${mongodb42}:${PORT2},${mongodb4arb}:${PORTARB}" );
-   sh.addShard( "${RS5}/${mongodb51}:${PORT1},${mongodb52}:${PORT2},${mongodb5arb}:${PORTARB}" );
-   sh.addShard( "${RS6}/${mongodb61}:${PORT1},${mongodb62}:${PORT2},${mongodb6arb}:${PORTARB}" );
-   sh.addShard( "${RS7}/${mongodb71}:${PORT1},${mongodb72}:${PORT2},${mongodb7arb}:${PORTARB}" );
-   sh.addShard( "${RS8}/${mongodb81}:${PORT1},${mongodb82}:${PORT2},${mongodb8arb}:${PORTARB}" );
-   sh.stopBalancer();
-   sh.status();
-EOF
+mongo --port $port --username $CLUSTER_ADMIN_NAME --password $CLUSTER_ADMIN_PASSWORD \
+		--authenticationDatabase admin admin <<-EOJS
+	sh.addShard( "${RS1}/${mongodb11}:${PORT1},${mongodb12}:${PORT2},${mongodb1arb}:${PORTARB}" );
+	sh.addShard( "${RS2}/${mongodb21}:${PORT1},${mongodb22}:${PORT2},${mongodb2arb}:${PORTARB}" );
+	sh.addShard( "${RS3}/${mongodb31}:${PORT1},${mongodb32}:${PORT2},${mongodb3arb}:${PORTARB}" );
+	sh.addShard( "${RS4}/${mongodb41}:${PORT1},${mongodb42}:${PORT2},${mongodb4arb}:${PORTARB}" );
+	sh.addShard( "${RS5}/${mongodb51}:${PORT1},${mongodb52}:${PORT2},${mongodb5arb}:${PORTARB}" );
+	sh.addShard( "${RS6}/${mongodb61}:${PORT1},${mongodb62}:${PORT2},${mongodb6arb}:${PORTARB}" );
+	sh.addShard( "${RS7}/${mongodb71}:${PORT1},${mongodb72}:${PORT2},${mongodb7arb}:${PORTARB}" );
+	sh.addShard( "${RS8}/${mongodb81}:${PORT1},${mongodb82}:${PORT2},${mongodb8arb}:${PORTARB}" );
+	sh.stopBalancer();
+	sh.status();
+EOJS

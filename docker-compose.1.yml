@@ -5,12 +5,12 @@ services:
         image: mgbi/mongo-rs:${MONGO_VERSION}
         expose:
             - "27017"
+        # do not break command into multiple lines - 
+        # Rancher does not support it
         command: >
             sh -ce "
-                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
-                mongod --keyFile ${KEYFILE_PATH} \
-                    --replSet rs1 --shardsvr --port 27017 --oplogSize 16 \
-                    --noprealloc --smallfiles --wiredTigerCacheSizeGB 0.5"
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH};
+                mongod --keyFile ${KEYFILE_PATH} --replSet rs1 --shardsvr --port 27017 --oplogSize 16 --wiredTigerCacheSizeGB 0.5"
         restart: on-failure
         labels:
             io.rancher.scheduler.affinity:host_label: members=secondary
@@ -22,10 +22,8 @@ services:
             - "27017"
         command: >
             sh -ce "
-                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
-                mongod --keyFile ${KEYFILE_PATH} \
-                    --replSet rs1 --shardsvr --port 27017 --oplogSize 16 \
-                    --noprealloc --smallfiles"
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH};
+                mongod --keyFile ${KEYFILE_PATH} --replSet rs1 --shardsvr --port 27017 --oplogSize 16"
         restart: on-failure
         labels:
             io.rancher.scheduler.affinity:host_label: members=secondary
@@ -37,10 +35,8 @@ services:
             - "27017"
         command: >
             sh -ce "
-                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH}
-                mongod --keyFile ${KEYFILE_PATH} \
-                    --replSet rs1 --shardsvr --port 27017 --oplogSize 16 \
-                    --noprealloc --smallfiles --wiredTigerCacheSizeGB 2"
+                get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH};
+                mongod --keyFile ${KEYFILE_PATH} --replSet rs1 --shardsvr --port 27017 --oplogSize 16 --wiredTigerCacheSizeGB 2"
         links:
             - mongo-1-2:mongo-1-2
             - mongo-1-arb:mongo-1-arb
