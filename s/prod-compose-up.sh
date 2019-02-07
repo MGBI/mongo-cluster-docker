@@ -17,10 +17,10 @@ rancher-compose \
 	-f docker-compose.7.yml \
 	-f docker-compose.8.yml \
 	-f docker-compose.cnf.yml \
-	$@
+	up -d
 
 ./s/init-replica-sets.sh rancher
 
-rancher-compose -e .env -p $STACK_NAME -f docker-compose.shard.yml up
+rancher-compose -e .env -p $STACK_NAME -f docker-compose.shard.yml up -d
 
 ./s/init-cluster.sh rancher

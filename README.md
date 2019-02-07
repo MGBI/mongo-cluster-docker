@@ -6,7 +6,17 @@ https://github.com/senssei/mongo-cluster-docker
 The project is adapted to run 8 primary instances on a single Rancher host (32 GB RAM),
 and 8 secondary instance + 8 arbiters on another host (8GB RAM).
 
-Access control is enabled. Configure .env file
+Access control is enabled. Configure `.env` file.
+
+Run locally:
+```
+./s/compose-up.sh
+```
+
+Configure `load_env_file.sh` and run in Rancher:
+```
+./s/prod-compose-up.sh
+```
 
 Originally:
 

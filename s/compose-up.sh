@@ -9,10 +9,10 @@ docker-compose \
 	-f docker-compose.6.yml \
 	-f docker-compose.7.yml \
 	-f docker-compose.8.yml \
-	$@
+	up
 
 ./s/init-replica-sets.sh
 
-docker-compose -f docker-compose.shard.yml
+docker-compose -f docker-compose.shard.yml up
 
 ./s/init-cluster.sh

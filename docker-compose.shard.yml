@@ -105,4 +105,5 @@ services:
         restart: on-failure
         labels:
             backup.type: mongo
+            io.rancher.container.pull_image: always
             io.rancher.scheduler.affinity:host_label: members=primary
