@@ -94,10 +94,15 @@ services:
             - CLUSTER_ADMIN_NAME=${CLUSTER_ADMIN_NAME}
             - CLUSTER_ADMIN_PASSWORD=${CLUSTER_ADMIN_PASSWORD}
 
+            - USER_NAME=${USER_NAME}
+            - USER_PASSWORD=${USER_PASSWORD}
+            - USER_DB=${USER_DB}
+
         command: >
             sh -ce "
                 get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH};
                 mongos --keyFile ${KEYFILE_PATH} --configdb rs-cnf/mongo-cnf-1:27017,mongo-cnf-2:27017,mongo-cnf-3:27017 --port 27017 --bind_ip 0.0.0.0"
         restart: on-failure
         labels:
+            backup.type: mongo
             io.rancher.scheduler.affinity:host_label: members=primary

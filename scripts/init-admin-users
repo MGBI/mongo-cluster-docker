@@ -12,13 +12,20 @@ echo "Started.."
 
 
 # Connect to the primary using the localhost interface
-echo init-users time now: `date +"%T" `
+echo init-admin-users time now: `date +"%T" `
+mongo --port $port admin <<-EOJS
+	db.createUser({
+		user: "$USER_ADMIN_NAME",
+		pwd: "$USER_ADMIN_PASSWORD",
+		roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+	})
+EOJS
 
 mongo --port $port --username $USER_ADMIN_NAME --password $USER_ADMIN_PASSWORD \
 		--authenticationDatabase admin admin <<-EOJS
 	db.createUser({
-		user: "$USER_NAME",
-		pwd: "$USER_PASSWORD",
-		roles: [ { role: "dbOwner", db: "$USER_DB" } ]
+		user: "$CLUSTER_ADMIN_NAME",
+		pwd: "$CLUSTER_ADMIN_PASSWORD",
+		roles: [ { role: "clusterAdmin", db: "admin" } ]
 	})
 EOJS
