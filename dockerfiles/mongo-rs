@@ -1,4 +1,7 @@
-FROM mongo:3.4
+FROM mongo:3.4.7
+# Above 3.4.7 version there is a problem with ownership of JS Scope.
+# The change was introduced by SERVER-30875 and should have been fixed
+# by SERVER-30971, but it is not.
 
 # wget for get-replica-set-key command
 RUN apt-get update && \
