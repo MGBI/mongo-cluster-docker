@@ -8,7 +8,7 @@ services:
         command: >
             sh -ce "
                 get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH};
-                mongod --keyFile ${KEYFILE_PATH} --replSet rs2 --shardsvr --port 27017 --oplogSize 16 --wiredTigerCacheSizeGB 0.5"
+                mongod --keyFile ${KEYFILE_PATH} --replSet rs2 --shardsvr --port 27017 --oplogSize 32 --wiredTigerCacheSizeGB 0.5"
         restart: on-failure
         labels:
             io.rancher.scheduler.affinity:host_label: members=secondary
@@ -21,7 +21,7 @@ services:
         command: >
             sh -ce "
                 get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH};
-                mongod --keyFile ${KEYFILE_PATH} --replSet rs2 --shardsvr --port 27017 --oplogSize 16"
+                mongod --keyFile ${KEYFILE_PATH} --replSet rs2 --shardsvr --port 27017 --oplogSize 32"
         restart: on-failure
         labels:
             io.rancher.scheduler.affinity:host_label: members=secondary
@@ -34,11 +34,11 @@ services:
         command: >
             sh -ce "
                 get-replica-set-key ${REPLICA_KEY_URL} ${KEYFILE_PATH};
-                mongod --keyFile ${KEYFILE_PATH} --replSet rs2 --shardsvr --port 27017 --oplogSize 16 --wiredTigerCacheSizeGB 2"
+                mongod --keyFile ${KEYFILE_PATH} --replSet rs2 --shardsvr --port 27017 --oplogSize 32 --wiredTigerCacheSizeGB 2"
         links:
             - mongo-2-2:mongo-2-2
             - mongo-2-arb:mongo-2-arb
-        environment: 
+        environment:
             - MONGO1=mongo-2-1
             - MONGO2=mongo-2-2
             - MONGOARB=mongo-2-arb

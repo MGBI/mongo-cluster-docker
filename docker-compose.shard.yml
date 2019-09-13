@@ -9,81 +9,81 @@ services:
             - mongo-cnf-1:mongo-cnf-1
             - mongo-cnf-2:mongo-cnf-2
             - mongo-cnf-3:mongo-cnf-3
-            
+
             - mongo-1-1:mongo-1-1
             - mongo-1-2:mongo-1-2
             - mongo-1-arb:mongo-1-arb
-            
+
             - mongo-2-1:mongo-2-1
             - mongo-2-2:mongo-2-2
             - mongo-2-arb:mongo-2-arb
-            
+
             - mongo-3-1:mongo-3-1
             - mongo-3-2:mongo-3-2
             - mongo-3-arb:mongo-3-arb
-            
+
             - mongo-4-1:mongo-4-1
             - mongo-4-2:mongo-4-2
             - mongo-4-arb:mongo-4-arb
-            
+
             - mongo-5-1:mongo-5-1
             - mongo-5-2:mongo-5-2
             - mongo-5-arb:mongo-5-arb
-            
+
             - mongo-6-1:mongo-6-1
             - mongo-6-2:mongo-6-2
             - mongo-6-arb:mongo-6-arb
-            
+
             - mongo-7-1:mongo-7-1
             - mongo-7-2:mongo-7-2
             - mongo-7-arb:mongo-7-arb
-            
+
             - mongo-8-1:mongo-8-1
             - mongo-8-2:mongo-8-2
             - mongo-8-arb:mongo-8-arb
 
-        environment: 
+        environment:
             - MONGOS=mongo-router
             - PORT=27017
             - PORT1=27017
             - PORT2=27017
             - PORTARB=27017
-            
+
             - RS1=rs1
             - MONGO11=mongo-1-1
             - MONGO12=mongo-1-2
             - MONGO1ARB=mongo-1-arb
-            
+
             - RS2=rs2
             - MONGO21=mongo-2-1
             - MONGO22=mongo-2-2
             - MONGO2ARB=mongo-2-arb
-            
+
             - RS3=rs3
             - MONGO31=mongo-3-1
             - MONGO32=mongo-3-2
             - MONGO3ARB=mongo-3-arb
-            
+
             - RS4=rs4
             - MONGO41=mongo-4-1
             - MONGO42=mongo-4-2
             - MONGO4ARB=mongo-4-arb
-            
+
             - RS5=rs5
             - MONGO51=mongo-5-1
             - MONGO52=mongo-5-2
             - MONGO5ARB=mongo-5-arb
-            
+
             - RS6=rs6
             - MONGO61=mongo-6-1
             - MONGO62=mongo-6-2
             - MONGO6ARB=mongo-6-arb
-            
+
             - RS7=rs7
             - MONGO71=mongo-7-1
             - MONGO72=mongo-7-2
             - MONGO7ARB=mongo-7-arb
-            
+
             - RS8=rs8
             - MONGO81=mongo-8-1
             - MONGO82=mongo-8-2
